@@ -115,9 +115,9 @@ uvicorn main:app --reload
 
 * 🔥 Live HTML preview
 * 🔥 Error highlighting (VS Code style)
-* 🔥 Code diff viewer (GitHub-like)
 * 🔥 Multi-file support
 * 🔥 User authentication
+* 🔥 Question Practice Dashboard (Like Leetcode)
 
 ---
 
