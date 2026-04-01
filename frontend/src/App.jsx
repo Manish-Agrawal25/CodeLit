@@ -4,7 +4,6 @@ import axios from "axios";
 
 export default function App() {
 
-  // 🔥 Templates
   const templates = {
     python: `print("Hello Python")`,
     javascript: `console.log("Hello JS");`,
@@ -28,7 +27,6 @@ int main() {
 console.log(msg);`
   };
 
-  // 🔥 STATES
   const [language, setLanguage] = useState("python");
   const [code, setCode] = useState(templates["python"]);
   const [output, setOutput] = useState("");
@@ -36,7 +34,9 @@ console.log(msg);`
   const [fixedCode, setFixedCode] = useState("");
   const [showCompare, setShowCompare] = useState(false);
 
-  // 🔁 CHANGE LANGUAGE
+  // ✅ NEW THEME STATE
+  const [darkMode, setDarkMode] = useState(true);
+
   const changeLang = (lang) => {
     setLanguage(lang);
     setCode(templates[lang]);
@@ -45,48 +45,67 @@ console.log(msg);`
     setShowCompare(false);
   };
 
-  // ▶ RUN
   const runCode = async () => {
     const res = await axios.post("http://127.0.0.1:8000/run", { code, language });
     setOutput(res.data.output);
     setShowCompare(false);
   };
 
-  // 🔍 ANALYZE
   const analyzeCode = async () => {
     const res = await axios.post("http://127.0.0.1:8000/analyze", { code, language });
     setOutput(res.data.output);
     setShowCompare(false);
   };
 
-  // ⚡ FIX
   const fixCode = async () => {
     const res = await axios.post("http://127.0.0.1:8000/fix", { code, language });
     setFixedCode(res.data.fixed);
     setShowCompare(true);
   };
 
-  // 🧠 MENTOR
   const getMentor = async () => {
     const res = await axios.post("http://127.0.0.1:8000/mentor", { code, language });
     setMentorOutput(res.data.mentor);
   };
 
   return (
-    <div style={{ height: "100vh", background: "#0b0f1a", color: "#e2e8f0", fontFamily: "sans-serif" }}>
+    <div style={{
+      height: "100vh",
+      background: darkMode ? "#0b0f1a" : "#f8fafc",
+      color: darkMode ? "#e2e8f0" : "#0f172a",
+      fontFamily: "sans-serif",
+      transition: "0.3s"
+    }}>
 
       {/* 🔥 NAVBAR */}
-      <div style={nav}>
+      <div style={{ ...nav, background: darkMode ? "#0f172a" : "#e2e8f0" }}>
         <div style={{ fontSize: "26px", fontWeight: "bold" }}>{"</>"} CodeLit</div>
 
-        <select value={language} onChange={(e) => changeLang(e.target.value)} style={dropdown}>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-          <option value="java">Java</option>
-          <option value="cpp">C++</option>
-          <option value="c">C</option>
-          <option value="typescript">TypeScript</option>
-        </select>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <select value={language} onChange={(e) => changeLang(e.target.value)} style={dropdown}>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="c">C</option>
+            <option value="typescript">TypeScript</option>
+          </select>
+
+          {/* ✅ TOGGLE BUTTON */}
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+              background: darkMode ? "#facc15" : "#1e293b",
+              color: darkMode ? "black" : "white"
+            }}
+          >
+            {darkMode ? "🌞" : "🌙"}
+          </button>
+        </div>
       </div>
 
       {/* 🔥 TOOLBAR */}
@@ -105,65 +124,64 @@ console.log(msg);`
       {/* 🔥 MAIN */}
       <div style={{ display: "flex", height: "85%" }}>
 
-        {/* EDITOR */}
         <div style={{ width: "65%", padding: "10px" }}>
-          <div style={fileTab}>main.{language === "cpp" ? "cpp" : language}</div>
+          <div style={{ ...fileTab, background: darkMode ? "#1e293b" : "#e2e8f0" }}>
+            main.{language === "cpp" ? "cpp" : language}
+          </div>
 
           <Editor
             height="100%"
-            theme="vs-dark"
+            theme={darkMode ? "vs-dark" : "light"}   // ✅ THEME SWITCH
             language={language === "cpp" ? "cpp" : language}
             value={code}
             onChange={(val) => setCode(val)}
-            options={{ fontSize: 20 }}  // 🔥 BIGGER FONT
+            options={{ fontSize: 20 }}
           />
         </div>
 
-        {/* RIGHT PANEL */}
         <div style={{ width: "35%", borderLeft: "1px solid #1e293b" }}>
 
-          {/* OUTPUT */}
-          <div style={panel}>
+          <div style={{ ...panel, background: darkMode ? "#020617" : "#ffffff" }}>
             <h3>⚡ OUTPUT</h3>
 
             {showCompare ? (
-  <>
-    <b>❌ Original</b>
-    <pre style={pre}>{code}</pre>
+              <>
+                <b>❌ Original</b>
+                <pre style={{ ...pre, background: darkMode ? "#1e293b" : "#e2e8f0" }}>{code}</pre>
 
-    <b>✅ Fixed</b>
-    <pre style={{ ...pre, background: "#022c22" }}>{fixedCode}</pre>
+                <b>✅ Fixed</b>
+                <pre style={{ ...pre, background: "#022c22" }}>{fixedCode}</pre>
 
-    {/* ✅ ADDED BUTTON */}
-    <button
-      style={{
-        marginTop: "10px",
-        padding: "10px 18px",
-        fontSize: "14px",
-        background: "#22c55e",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer"
-      }}
-      onClick={() => {
-        setCode(fixedCode);
-        setShowCompare(false);
-        setOutput("✅ Fixed code applied!");
-      }}
-    >
-      ✅ Use Fixed Code
-    </button>
-  </>
+                <button
+                  style={{
+                    marginTop: "10px",
+                    padding: "10px 18px",
+                    fontSize: "14px",
+                    background: "#22c55e",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer"
+                  }}
+                  onClick={() => {
+                    setCode(fixedCode);
+                    setShowCompare(false);
+                    setOutput("✅ Fixed code applied!");
+                  }}
+                >
+                  ✅ Use Fixed Code
+                </button>
+              </>
             ) : (
-              <pre style={pre}>{output || "Run your code to see output..."}</pre>
+              <pre style={{ ...pre, background: darkMode ? "#1e293b" : "#e2e8f0" }}>
+                {output || "Run your code to see output..."}
+              </pre>
             )}
           </div>
 
-          {/* MENTOR */}
-          <div style={panel}>
+          <div style={{ ...panel, background: darkMode ? "#020617" : "#ffffff" }}>
             <h3>🧠 AI MENTOR</h3>
-            <pre style={pre}>
+            <pre style={{ ...pre, background: darkMode ? "#1e293b" : "#e2e8f0" }}>
               {mentorOutput || "Click Mentor to get feedback"}
             </pre>
           </div>
@@ -174,14 +192,13 @@ console.log(msg);`
   );
 }
 
-/* 🎨 STYLES */
+/* STYLES (UNCHANGED) */
 const nav = {
   height: "65px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   padding: "0 25px",
-  background: "#0f172a",
   borderBottom: "1px solid #1e293b"
 };
 
@@ -213,7 +230,6 @@ const panel = {
 };
 
 const fileTab = {
-  background: "#1e293b",
   padding: "8px 12px",
   borderRadius: "8px",
   marginBottom: "6px",
@@ -221,7 +237,6 @@ const fileTab = {
 };
 
 const pre = {
-  background: "#1e293b",
   padding: "12px",
   fontSize: "15px",
   lineHeight: "1.6",
